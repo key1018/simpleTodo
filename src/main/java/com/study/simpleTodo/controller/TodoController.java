@@ -4,6 +4,7 @@ import com.study.simpleTodo.dto.ResponseDTO;
 import com.study.simpleTodo.dto.TodoDTO;
 import com.study.simpleTodo.model.TodoEntity;
 import com.study.simpleTodo.service.TodoService;
+import org.aspectj.lang.annotation.DeclareError;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -129,6 +130,36 @@ public class TodoController {
 
         // ResponseDTO를 리턴
         return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteTodo(@RequestBody TodoDTO dto){
+        try {
+            String temporaryUserId = "temporaryUserId";
+
+            // todoEntity로 변환
+            TodoEntity entity = TodoDTO.todoEntity(dto);
+
+            // 임시 유저 아이디 설정
+            entity.setUserId(temporaryUserId);
+
+            // 서비스를 이용해 entity 삭제
+            List<TodoEntity> entities = todoService.delete(entity);
+
+            // 자바 스트림을 이용해 리턴된 엔티티 리스트를 TodoDTO 리스트로 변환
+            List<TodoDTO> dtos = entities.stream().map(TodoDTO::new).toList();
+
+            // 변환된 TodoDTO 리스트를 이용해 ResponseDTO를 초기화
+            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+            // ResponseDTO를 리턴
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            String error = e.getMessage();
+            ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
+            return ResponseEntity.badRequest().body(response);
+        }
+
     }
 
 }
