@@ -39,6 +39,10 @@ public class TodoService {
         return todoRepository.findByUserId(todoEntity.getUserId());
     }
 
+    public List<TodoEntity> retrieve(final String userId){
+        return todoRepository.findByUserId(userId);
+    }
+
     // 리펙토링한 메서드
     private void validate(final TodoEntity todoEntity){
         if(todoEntity == null){

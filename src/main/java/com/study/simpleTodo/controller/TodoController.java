@@ -19,10 +19,10 @@ public class TodoController {
     @Autowired
     private TodoService todoService;
 
-    @GetMapping
-    public String todoController(){
-        return "todo";
-    }
+//    @GetMapping
+//    public String todoController(){
+//        return "todo";
+//    }
 
     @GetMapping("/todoGetMapping")
     public String todoGetMapping(){
@@ -88,6 +88,24 @@ public class TodoController {
             ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().error(error).build();
             return ResponseEntity.badRequest().body(response);
         }
+    }
+
+    // retrieve
+    @GetMapping
+    public ResponseEntity<?> retrieveTodoList(){
+        String temporaryUserId = "temporaryUserId";
+
+        // Service의 retrieve 메서드를 이용해 Todo 리스트 가져오기
+        List<TodoEntity> retrieve = todoService.retrieve(temporaryUserId);
+
+        // 자바 스트림을 이용해 리턴된 엔티티 리스트를 TodoDTO 리스트로 변환
+        List<TodoDTO> dtos = retrieve.stream().map(TodoDTO::new).toList();
+
+        // 변환된 TodoDTO 리스트를 이용해 ResponseDTO를 초기화
+        ResponseDTO<TodoDTO> response = ResponseDTO.<TodoDTO>builder().data(dtos).build();
+
+        // ResponseDTO를 리턴
+        return ResponseEntity.ok(response);
     }
 
 }
