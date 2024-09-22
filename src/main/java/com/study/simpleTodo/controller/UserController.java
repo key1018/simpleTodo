@@ -68,13 +68,9 @@ public class UserController {
                     .token(token)
                     .build();
 
-            final ResponseDTO<UserDTO> response = ResponseDTO.<UserDTO>builder()
-                    .data(List.of(responseUserDTO))
-                    .build();
-
             return ResponseEntity.ok().body(responseUserDTO);
         } else {
-            final ResponseDTO<UserDTO> responseDto = ResponseDTO.<UserDTO>builder().error("Login failed").build();
+            final ResponseDTO responseDto = ResponseDTO.builder().error("Login failed").build();
             return ResponseEntity.badRequest().body(responseDto);
         }
     }
