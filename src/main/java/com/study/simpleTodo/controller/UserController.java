@@ -3,6 +3,7 @@ package com.study.simpleTodo.controller;
 import com.study.simpleTodo.dto.ResponseDTO;
 import com.study.simpleTodo.dto.UserDTO;
 import com.study.simpleTodo.model.UserEntity;
+import com.study.simpleTodo.security.TokenProvider;
 import com.study.simpleTodo.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.User;
@@ -13,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @Slf4j
 @RestController
 @RequestMapping("/auth")
@@ -20,6 +23,8 @@ public class UserController {
 
     @Autowired
     private UserService userService;
+    @Autowired
+    private TokenProvider tokenProvider;
 
     // 회원가입
     @PostMapping("/signup")
@@ -54,13 +59,22 @@ public class UserController {
         UserEntity user = userService.getByCredentials(userDTO.getUsername(), userDTO.getPassword());
 
         if(user != null){
+            // 토큰 생성
+            final String token = tokenProvider.createToken(user);
+
             final UserDTO responseUserDTO = UserDTO.builder()
                     .username(user.getUsername())
                     .id(user.getId())
+                    .token(token)
                     .build();
+
+            final ResponseDTO<UserDTO> response = ResponseDTO.<UserDTO>builder()
+                    .data(List.of(responseUserDTO))
+                    .build();
+
             return ResponseEntity.ok().body(responseUserDTO);
         } else {
-            ResponseDTO responseDto = ResponseDTO.builder().error("Login failed").build();
+            final ResponseDTO<UserDTO> responseDto = ResponseDTO.<UserDTO>builder().error("Login failed").build();
             return ResponseEntity.badRequest().body(responseDto);
         }
     }
