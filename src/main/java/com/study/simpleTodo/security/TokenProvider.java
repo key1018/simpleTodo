@@ -43,7 +43,7 @@ public class TokenProvider {
 
         return Jwts.builder()
                 .signWith(secretKey, Jwts.SIG.HS512) // 생성한 키로 서명
-                .claim(AUTH_KEY, user.getId()) // claim 방식(Json Object)으로 페이로드 구성: userId key-value 쌍을 페이로드로 주입
+//                .claim(AUTH_KEY, user.getId()) // claim 방식(Json Object)으로 페이로드 구성: userId key-value 쌍을 페이로드로 주입
                 .issuer(ISSUER) // 토큰 발급자
                 .issuedAt(nowDate) // 토큰 발급 일시
 //                .subject(SUBJECT)
