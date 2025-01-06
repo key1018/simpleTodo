@@ -4,6 +4,7 @@ import com.study.simpleTodo.model.UserEntity;
 import com.study.simpleTodo.persistence.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Slf4j
@@ -25,7 +26,20 @@ public class UserService {
         return userRepository.save(userEntity);
     }
 
-    public UserEntity getByCredentials(final String username, final String password) {
-        return userRepository.findByUsernameAndPassword(username, password);
+    /**
+     * 기존코드
+     */
+//    public UserEntity getByCredentials(final String username, final String password) {
+//        return userRepository.findByUsernameAndPassword(username, password);
+//    }
+
+    public UserEntity getByCredentials(final String username, final String password, final PasswordEncoder encoder) {
+        final UserEntity userEntity = userRepository.findByUsername(username);
+
+        // matches를 이용해 패스워드가 같은지 확인
+        if(userEntity != null && encoder.matches(password, userEntity.getPassword())) {
+            return userEntity;
+        }
+        return null;
     }
 }
