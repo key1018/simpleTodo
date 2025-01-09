@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/todo")
+@RequestMapping("todo")
 public class TodoController {
 
     @Autowired
