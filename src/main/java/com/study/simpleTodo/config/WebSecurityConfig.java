@@ -21,7 +21,7 @@ public class WebSecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())  // CSRF 비활성화
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))  // CORS 설정 적용
-                .authorizeRequests(auth -> auth.requestMatchers("/login").permitAll()
+                .authorizeRequests(auth -> auth.requestMatchers("/", "/login", "/auth/**").permitAll()
                         .anyRequest().authenticated())  // 인증되지 않은 요청은 /login으로 리다이렉트
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // stateless 설정
                 .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class)  // jwtAuthenticationFilter 실행
