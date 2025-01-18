@@ -1,15 +1,20 @@
 package com.study.simpleTodo.config;
 
 import com.study.simpleTodo.security.JwtAuthenticationFilter;
+import com.study.simpleTodo.security.OAuthUserServiceImpl;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.savedrequest.HttpSessionRequestCache;
 import org.springframework.security.web.savedrequest.SavedRequest;
 import org.springframework.web.cors.CorsConfigurationSource;  // 수정된 import
@@ -21,6 +26,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 public class WebSecurityConfig {
 
+    @Autowired
+    private OAuthUserServiceImpl oAuthUserService;
+
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         return http
@@ -29,13 +37,18 @@ public class WebSecurityConfig {
                 .authorizeRequests(auth -> auth.requestMatchers("/", "/login", "/auth/**").permitAll()
                         .anyRequest().authenticated())  // 인증되지 않은 요청은 /login으로 리다이렉트
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // stateless 설정
-                .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class)  // jwtAuthenticationFilter 실행
                 .oauth2Login(oauth2 -> oauth2
+                        .redirectionEndpoint(endpoint ->
+                                endpoint.baseUri("/oauth2/callback/*")) // 리다이렉션 엔드포인트 설정
+                        .userInfoEndpoint(userInfo -> userInfo.userService(oAuthUserService)) // userInfoEndpoint 설정
                         .successHandler(oAuth2AuthenticationSuccessHandler()) // OAuth2 성공 핸들러
                         .failureHandler((request, response, exception) -> { // OAuth2 실패 핸들러
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.getWriter().write("OAuth 로그인 실패");
                         }))
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))) // 인증 실패 시 401 응답
+                .addFilterAfter(jwtAuthenticationFilter, CorsFilter.class)  // jwtAuthenticationFilter 실행
                 .build();
     }
 
