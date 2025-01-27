@@ -10,8 +10,11 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Slf4j
 @Service
@@ -49,9 +52,11 @@ public class OAuthUserServiceImpl extends DefaultOAuth2UserService {
                     .authProvider(authProvider)
                     .build();
             userEntity = userRepository.save(userEntity);
+        } else {
+            userEntity = userRepository.findByUsername(username);
         }
 
         log.info("Successfully logged in username {} authProvider {}", username, authProvider);
-        return oAuth2User;
+        return new ApplicationOAuth2User(userEntity.getId(),oAuth2User.getAttributes());
     }
 }

@@ -57,9 +57,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
-                securityContext.setAuthentication(authentication); // 인증 정보를 넣고 다시 SecurityContextHolder에 컨텍스트로 등록
-                SecurityContextHolder.setContext(securityContext);
+//                SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+//                securityContext.setAuthentication(authentication); // 인증 정보를 넣고 다시 SecurityContextHolder에 컨텍스트로 등록
+//                SecurityContextHolder.setContext(securityContext);
+
+                SecurityContextHolder.getContext().setAuthentication(authentication);
             }
         } catch (Exception e) {
             log.error("Error during authentication in security context: {}", e.getMessage());
