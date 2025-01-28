@@ -86,6 +86,8 @@ public class TokenProvider {
         // 초기화 되었는지 확인
         ensureSecretKeyInitialized();
 
+        System.out.println("토큰1" + secretKey);
+
         ApplicationOAuth2User userPrincipal = (ApplicationOAuth2User) authentication.getPrincipal();
 //        OAuth2User userPrincipal = (OAuth2User) authentication.getPrincipal();
         Date expiryDate = Date.from(Instant.now()
